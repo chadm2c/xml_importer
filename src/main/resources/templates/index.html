@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product XML Importer</title>
+    <style>
+        :root {
+            --primary: #007bff;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #6c757d;
+            font-size: 1.1em;
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+        }
+
+        .drop-zone {
+            border: 3px dashed #ccc;
+            border-radius: 12px;
+            padding: 50px 30px;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            background: var(--light);
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--primary);
+            background-color: #e3f2fd;
+            transform: translateY(-2px);
+        }
+
+        .drop-zone i {
+            font-size: 64px;
+            color: #6c757d;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .file-info {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #6c757d;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #0056b3);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .error-list {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+
+        .error-list li {
+            margin: 5px 0;
+            color: var(--danger);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 15px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .navigation {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .navigation a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0 10px;
+            padding: 10px 20px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .navigation a:hover {
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+        }
+
+        .text-muted {
+            color: #6c757d !important;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 Product XML Importer</h1>
+            <p>Upload your product data in XML format with drag & drop support</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="drop-zone" id="dropZone">
+                <i>📁</i>
+                <h3>Drag & Drop your XML file here</h3>
+                <p>Supported format: XML files up to 10MB</p>
+                <p class="file-info" id="fileInfo">No file selected</p>
+                <button class="btn" onclick="document.getElementById('fileInput').click()">
+                    Browse Files
+                </button>
+            </div>
+
+            <input type="file" id="fileInput" class="file-input" accept=".xml" />
+
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Processing...</div>
+            </div>
+
+            <div style="text-align: center;">
+                <button class="btn" id="uploadBtn" onclick="uploadFile()" disabled>Upload File</button>
+                <button class="btn btn-danger" onclick="clearFile()">Clear</button>
+            </div>
+        </div>
+
+        <div class="result" id="result"></div>
+
+        <div class="navigation">
+            <a href="/products">📋 View All Products</a>
+            <a href="#" onclick="showSampleXml()">💡 View Sample XML Format</a>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const resultDiv = document.getElementById('result');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+
+        let currentFile = null;
+
+        // Drag and drop event handlers
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+        });
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                if (isValidXmlFile(file)) {
+                    currentFile = file;
+                    fileInfo.textContent = `Selected: ${file.name} (${formatFileSize(file.size)})`;
+                    fileInfo.style.color = '#28a745';
+                    uploadBtn.disabled = false;
+                } else {
+                    showResult('Please select a valid XML file (max 10MB)', false);
+                    fileInfo.textContent = 'Invalid file type or size. Please select an XML file (max 10MB).';
+                    fileInfo.style.color = '#dc3545';
+                    uploadBtn.disabled = true;
+                    currentFile = null;
+                }
+            }
+        }
+
+        function isValidXmlFile(file) {
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            return (file.type === 'text/xml' || file.name.toLowerCase().endsWith('.xml')) &&
+                   file.size <= maxSize &&
+                   file.size > 0;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function uploadFile() {
+            if (!currentFile) {
+                showResult('Please select a file first', false);
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', currentFile);
+
+            // Show progress
+            showProgress(true);
+            uploadBtn.disabled = true;
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                showProgress(false);
+                showDetailedResult(data);
+                if (data.success) {
+                    clearFile();
+                } else {
+                    uploadBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                showProgress(false);
+                showResult('Upload failed: ' + error.message, false);
+                uploadBtn.disabled = false;
+            });
+        }
+
+        function showProgress(show) {
+            progressContainer.style.display = show ? 'block' : 'none';
+            if (show) {
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += Math.random() * 10;
+                    if (progress > 90) {
+                        progress = 90;
+                        clearInterval(interval);
+                    }
+                    progressFill.style.width = progress + '%';
+                    progressText.textContent = `Processing... ${Math.round(progress)}%`;
+                }, 200);
+            } else {
+                progressFill.style.width = '0%';
+            }
+        }
+
+        function showDetailedResult(data) {
+            let html = '';
+
+            if (data.success) {
+                html = `
+                    <div class="result success">
+                        <h4>✅ ${data.message}</h4>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <div class="stat-value">${data.importedCount}</div>
+                                <div class="stat-label">Imported</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${data.totalProcessed}</div>
+                                <div class="stat-label">Total Processed</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${data.errors.length}</div>
+                                <div class="stat-label">Errors</div>
+                            </div>
+                        </div>
+                `;
+            } else {
+                html = `
+                    <div class="result error">
+                        <h4>❌ ${data.message}</h4>
+                `;
+            }
+
+            if (data.errors && data.errors.length > 0) {
+                html += `
+                    <div class="error-list">
+                        <h5>Errors encountered:</h5>
+                        <ul>
+                            ${data.errors.map(error => `<li>${error}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
+
+            // Scroll to result
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showResult(message, isSuccess) {
+            resultDiv.innerHTML = `
+                <div class="result ${isSuccess ? 'success' : 'error'}">
+                    <h4>${isSuccess ? '✅' : '❌'} ${message}</h4>
+                </div>
+            `;
+            resultDiv.style.display = 'block';
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearFile() {
+            fileInput.value = '';
+            fileInfo.textContent = 'No file selected';
+            fileInfo.style.color = '#6c757d';
+            uploadBtn.disabled = true;
+            currentFile = null;
+            resultDiv.style.display = 'none';
+        }
+
+        function showSampleXml() {
+            const sampleXml = `<?xml version="1.0" encoding="UTF-8"?>
+<products>
+    <product>
+        <name>Wireless Bluetooth Headphones</name>
+        <description>High-quality wireless headphones with noise cancellation</description>
+        <brand>AudioTech</brand>
+        <storageDate>2024-01-15</storageDate>
+        <price>129.99</price>
+        <category>Electronics</category>
+        <sku>AUD-BT-001</sku>
+        <quantityInStock>50</quantityInStock>
+    </product>
+    <product>
+        <name>Smart Fitness Watch</name>
+        <description>Advanced fitness tracking with heart rate monitor</description>
+        <brand>FitGear</brand>
+        <storageDate>2024-01-20</storageDate>
+        <price>199.99</price>
+        <category>Wearables</category>
+        <sku>FIT-WATCH-002</sku>
+        <quantityInStock>25</quantityInStock>
+    </product>
+</products>`;
+
+            alert('Sample XML Format:\n\n' + sampleXml);
+        }
+    </script>
+</body>
+</html>
