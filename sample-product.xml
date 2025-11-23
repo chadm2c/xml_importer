@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<products>
+    <product>
+        <name>Wireless Bluetooth Headphones</name>
+        <description>High-quality wireless headphones with active noise cancellation technology. Features 30-hour battery life and comfortable over-ear design.</description>
+        <brand>AudioTech</brand>
+        <storageDate>2024-01-15</storageDate>
+        <price>129.99</price>
+        <category>Electronics</category>
+        <sku>AUD-BT-001</sku>
+        <quantityInStock>50</quantityInStock>
+    </product>
+    <product>
+        <name>Smart Fitness Watch</name>
+        <description>Advanced fitness tracking watch with heart rate monitor, GPS, and sleep tracking. Water-resistant up to 50 meters.</description>
+        <brand>FitGear</brand>
+        <storageDate>2024-01-20</storageDate>
+        <price>199.99</price>
+        <category>Wearables</category>
+        <sku>FIT-WATCH-002</sku>
+        <quantityInStock>25</quantityInStock>
+    </product>
+</products>
