@@ -8,6 +8,7 @@ A Spring Boot application built with Kotlin that allows importing product data f
 - 🔍 Search products by name, brand, or description
 - 🗄️ Automatic data storage in PostgreSQL
 - 🐳 Docker containerized
+- link to the docker image: https://hub.docker.com/r/chadmany20/xml-importer-app
 
 ## Quick Start
 
