@@ -1,6 +1,6 @@
 # XML Product Importer
 
-A Spring Boot application built with Kotlin that allows importing product data from XML files into a PostgreSQL database.
+A Spring Boot web application built with Kotlin that allows importing product data from XML files into a PostgreSQL database.
 
 ## Features
 
