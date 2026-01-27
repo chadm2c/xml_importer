@@ -2,8 +2,9 @@ name: docker
 on:
   push:
     branches: ['main']
-  tags:
-    - 'v1.0.0'
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
