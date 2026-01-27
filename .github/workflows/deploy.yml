@@ -20,6 +20,7 @@ jobs:
           script: |
             set -e
             sudo mkdir -p /opt/xml-importer
+            sudo chown -R $USER:$USER /opt/xml-importer
       - name: Upload docker-compose
         uses: appleboy/scp-action@v0.1.7
         with:
