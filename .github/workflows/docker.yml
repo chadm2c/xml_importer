@@ -12,6 +12,21 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+      - name: Pre-pull base images with retries
+        run: |
+          set -e
+          imgs=("maven:3.9.9-eclipse-temurin-21" "eclipse-temurin:21-jre-jammy")
+          for img in "${imgs[@]}"; do
+            echo "Pulling $img"
+            for i in {1..5}; do
+              if docker pull "$img"; then
+                echo "Pulled $img"
+                break
+              fi
+              echo "Retry $i/5 failed for $img; sleeping..."
+              sleep 15
+            done
+          done
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
